@@ -5,7 +5,11 @@ const mongoose = require('mongoose');
 const Item = require("./model/item.js");
 
 const url = "mongodb://localhost:27017/todoDB_v2";
-mongoose.connect(url);
+mongoose.connect(url)
+    .catch(err => {
+        console.log(err);
+        throw new Error('There was an error during db connection', err.message);
+    });
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,9 +36,10 @@ app.post("/", async function (req, res) {
     res.redirect("/");
 });
 
-app.patch("/items/:id", async function (req, res) {
-    var id = req.params.id;
-    await Item.updateOne({ id: id }, {completed: completed});
+app.post("/update", function (req, res) {
+    console.log(" body: " + JSON.stringify(req.body));
+    Item.findByIdAndUpdate(req.body.hiddenItemId, { completed: req.body.hiddenItemCompleted === "false" ? true: false })
+        .catch(err => console.log(err));
     res.redirect("/");
 });
 
@@ -47,19 +52,19 @@ function getDate() {
 }
 
 async function findItems(date) {
-    //await mongoose.connect(url);
-    console.log("actual date param: " + date);
     const items = await Item.find({ date: date });
     return items;
 } 
 
 async function insertOne(subject) {
-    //await mongoose.connect(url);
-    console.log("actual item param: " + subject);
     const item = new Item({
         date: getDate(),
         subject: subject,
         completed: false
     });
-    item.save().catch(err => console.log(err.message));
+    try {
+        await item.save();
+    } catch(err) {
+        console.log("There was an error saving document: " + err.message);
+    }
 }

@@ -14,14 +14,18 @@
     
     <div class="box">
         <% items.forEach((item) => { %>
-            <div class="item">
-                <% if(item.completed){ %>
-                    <input type="checkbox" value="<%= item.id %>" checked>
-                <%}else{%>
-                    <input type="checkbox" value="<%= item.id %>">
-                <%}%>
-                <p><%= item.subject %></p>
-            </div>
+            <form action="/update" method="post">
+                <input type="hidden" name="hiddenItemId" value="<%= item.id %>">
+                <input type="hidden" name="hiddenItemCompleted" value="<%= item.completed %>">
+                <div class="item">
+                    <% if(item.completed){ %>
+                        <input type="checkbox" value="<%= item.id %>" onchange="this.form.submit()" checked>
+                    <%}else{%>
+                        <input type="checkbox" value="<%= item.id %>" onchange="this.form.submit()">
+                    <%}%>
+                    <p><%= item.subject %></p>
+                </div>
+            </form>
         <% }); %>
 
         <form class="item" action="/" method="post">
